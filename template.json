@@ -1,0 +1,267 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "String",
+            "metadata": {
+                "description": "Azure location where to deploy the resources"
+            }
+        },
+        "vmName": {
+            "defaultValue": "CloudNetworkController",
+            "type": "String",
+            "metadata": {
+                "description": "Virtual Machine Name (also used as a prefix for other resources)"
+            }
+        },
+        "vmSize": {
+            "defaultValue": "Standard_D8s_v3",
+            "type": "String",
+            "metadata": {
+                "description": "Virtual Machine Size"
+            }
+        },
+        "imageSku": {
+            "defaultValue": "25_1_1-byol",
+            "type": "String",
+            "metadata": {
+                "description": "Image SKU"
+            }
+        },
+        "imageVersion": {
+            "defaultValue": "latest",
+            "type": "String",
+            "metadata": {
+                "description": "Image Version"
+            }
+        },
+        "adminUsername": {
+            "defaultValue": "capicuser",
+            "type": "String",
+            "metadata": {
+                "description": "Admin user name"
+            }
+        },
+        "adminPasswordOrKey": {
+            "type": "SecureString",
+            "metadata": {
+                "description": "Passwords must be between 12 and 72 characters and have 3 of the following: 1 lower case, 1 upper case, 1 number, and 1 special character @$!%*#?&"
+            }
+        },
+        "adminPublicKey": {
+            "type": "String",
+            "metadata": {
+                "description": "Provide an RSA public key in the single-line format (starting with \"ssh-rsa\") or the multi-line PEM format. You can generate SSH keys using ssh-keygen on Linux and OS X, or PuTTYGen on Windows."
+            }
+        },
+        "FabricName": {
+            "defaultValue": "ACI-Cloud-Fabric",
+            "type": "String",
+            "metadata": {
+                "description": "Fabric Name (must be only alphanumeric chars seperated by '-')"
+            }
+        },
+        "InfraVNETPool": {
+            "defaultValue": "10.10.0.0/24",
+            "type": "String",
+            "metadata": {
+                "description": "IP address pool for Infra VNETs (must be/24 prefix)"
+            }
+        },
+        "ExternalSubnets": {
+            "defaultValue": "0.0.0.0/0",
+            "minLength": 9,
+            "type": "String",
+            "metadata": {
+                "description": "IP Addresses which needs to be allowed to access Cloud Network Controller"
+            }
+        },
+        "publicIpDns": {
+            "defaultValue": "[toLower(concat(parameters('vmName'), uniqueString(resourceGroup().id)))]",
+            "type": "String",
+            "metadata": {
+                "description": "DNS Label for the Public IP. Must be lowercase. "
+            }
+        },
+        "publicIPName": {
+            "defaultValue": "[concat('oob-pip-',parameters('vmName'))]",
+            "type": "String",
+            "metadata": {
+                "description": "Public IP name"
+            }
+        },
+        "publicIPSku": {
+            "defaultValue": "Basic",
+            "type": "String",
+            "metadata": {
+                "description": "Public IP sku"
+            }
+        },
+        "publicIPAllocationMethod": {
+            "defaultValue": "Static",
+            "type": "String",
+            "metadata": {
+                "description": "Public IP allocation method"
+            }
+        },
+        "publicIPNewOrExisting": {
+            "defaultValue": "new",
+            "type": "String",
+            "metadata": {
+                "description": "Should be 'new' if the public IP has to be created"
+            }
+        },
+        "publicIPResourceGroup": {
+            "defaultValue": "[resourceGroup().name]",
+            "type": "String",
+            "metadata": {
+                "description": "The Public IP Resource Group"
+            }
+        },
+        "virtualNetworkName": {
+            "defaultValue": "overlay-1",
+            "type": "String",
+            "metadata": {
+                "description": "The name of the virtual network"
+            }
+        },
+        "mgmtNsgName": {
+            "defaultValue": "controllers_cloudapp-cloud-infra",
+            "type": "String",
+            "metadata": {
+                "description": "The name NSG for the manamgement interface"
+            }
+        },
+        "mgmtAsgName": {
+            "defaultValue": "controllers_cloudapp-cloud-infra",
+            "type": "String",
+            "metadata": {
+                "description": "The name ASG for the manamgement interface"
+            }
+        },
+        "subnetPrefix": {
+            "defaultValue": "subnet-",
+            "type": "String",
+            "metadata": {
+                "description": "The prefix to use for all subnets created in the VNet"
+            }
+        },
+        "_artifactsLocation": {
+            "defaultValue": "[deployment().properties.templateLink.uri]",
+            "type": "String",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "defaultValue": "",
+            "type": "SecureString",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+            }
+        }
+    },
+    "variables": {
+        "nestedtemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/aciTemplate.json', parameters('_artifactsLocationSasToken')))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "pid-7627251b-4074-4a43-b6f6-6052ef593105-partnercenter",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "Cloud-APIC-Deployment",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('nestedtemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    },
+                    "vmName": {
+                        "value": "[parameters('vmName')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
+                    "imageSku": {
+                        "value": "[parameters('imageSku')]"
+                    },
+                    "imageVersion": {
+                        "value": "[parameters('imageVersion')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPasswordOrKey": {
+                        "value": "[parameters('adminPasswordOrKey')]"
+                    },
+                    "adminPublicKey": {
+                        "value": "[parameters('adminPublicKey')]"
+                    },
+                    "FabricName": {
+                        "value": "[parameters('FabricName')]"
+                    },
+                    "InfraVNETPool": {
+                        "value": "[parameters('InfraVNETPool')]"
+                    },
+                    "ExternalSubnets": {
+                        "value": "[parameters('ExternalSubnets')]"
+                    },
+                    "publicIpDns": {
+                        "value": "[parameters('publicIpDns')]"
+                    },
+                    "publicIPName": {
+                        "value": "[parameters('publicIPName')]"
+                    },
+                    "publicIPSku": {
+                        "value": "[parameters('publicIPSku')]"
+                    },
+                    "publicIPAllocationMethod": {
+                        "value": "[parameters('publicIPAllocationMethod')]"
+                    },
+                    "publicIPNewOrExisting": {
+                        "value": "[parameters('publicIPNewOrExisting')]"
+                    },
+                    "publicIPResourceGroup": {
+                        "value": "[parameters('publicIPResourceGroup')]"
+                    },
+                    "virtualNetworkName": {
+                        "value": "[parameters('virtualNetworkName')]"
+                    },
+                    "mgmtNsgName": {
+                        "value": "[parameters('mgmtNsgName')]"
+                    },
+                    "mgmtAsgName": {
+                        "value": "[parameters('mgmtAsgName')]"
+                    },
+                    "subnetPrefix": {
+                        "value": "[parameters('subnetPrefix')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "capicIP": {
+            "type": "String",
+            "value": "[reference('Cloud-APIC-Deployment').outputs.capicIP.value]"
+        }
+    }
+}
