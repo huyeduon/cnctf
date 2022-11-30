@@ -3,7 +3,7 @@ cloud controller terraform
 
 1, Create terraform.tfvars file with content match your environment
 
-subscription_id = ""
+subscription_id = "" <br >
 client_id       = ""
 client_secret   = ""
 tenant_id       = ""
